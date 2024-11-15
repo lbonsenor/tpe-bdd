@@ -16,6 +16,10 @@ Conexión a PostgreSQL:
 
 ```psql -h bd1.it.itba.edu.ar -U nombreusuario PROOF```
 
+Subir data a pampero:
+
+```scp jugadores-2022.csv username@pampero.itba.edu.ar:/home/username/```
+
 | Importante! |
 |-------------|
 > No copiar directo los comandos de la guía de importación porque no reconoce el hyphen
