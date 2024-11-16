@@ -45,7 +45,7 @@ Subir data a pampero:
 #### Importar datos a tabla futbolista:
 
 ```
-    \copy futbolista_prueba(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor_mercado,equipo) from 'jugadores-2022.csv' delimiter ';' csv header
+    \copy futbolista_prueba(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor,equipo) from 'jugadores-2022.csv' delimiter ';' csv header
 ```
 
 
@@ -59,3 +59,7 @@ Para ejecutar desde la base de datos es:
 ```
     \i script.sql
 ```
+
+### Observaciones adicionales:
+
+* Utilizar ILIKE para que sea case insensitive (proteccion contra inserciones con mayúsculas disitntas)
