@@ -221,8 +221,10 @@ BEGIN
         GROUP BY dp.dorsal
         ORDER BY valor_maximo DESC
     LOOP
+        IF r.dorsal < 13 THEN -- "dorsales principales"
         RAISE INFO 'Dorsal: %                        %        %        %        %        %', r.dorsal, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
+        END IF;
     END LOOP;
     
 EXCEPTION
