@@ -23,3 +23,21 @@ Subir data a pampero:
 | Importante! |
 |-------------|
 > No copiar directo los comandos de la guía de importación porque no reconoce el hyphen
+
+### Importación de datos
+
+
+#### Setear la fecha en el formato correspondiente:
+
+```SET datestyle ='DMY'```
+
+> Obs! Copiar a futbolista_prueba y dorsal_prueba por las dudas
+
+> Aún no importar porque faltan los triggers y etc
+
+#### Importar datos a tabla futbolista:
+
+```\copy futbolista_prueba(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor_mercado,equipo) from 'jugadores-2022.csv' delimiter ';' csv header```
+
+#### Importar datos a tabla dorsal:
+```\copy dorsal_prueba(jugador,dorsal) from 'jugadores-2022.csv' delimiter ';' csv header```
