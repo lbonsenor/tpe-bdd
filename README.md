@@ -28,7 +28,6 @@ Conexión a PostgreSQL:
 ```
 
 
-
 | Importante! |
 |-------------|
 > No copiar directo los comandos de la guía de importación porque no reconoce el hyphen

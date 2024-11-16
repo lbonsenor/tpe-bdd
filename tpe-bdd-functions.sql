@@ -22,7 +22,7 @@ CREATE TABLE futbolista_prueba (
 CREATE TABLE dorsal_prueba (
     jugador         VARCHAR(50) NOT NULL,
     dorsal          int NOT NULL,
-    PRIMARY KEY(jugador)
+    PRIMARY KEY(jugador, dorsal) -- por las dudas de que existan despues nombres repetidos entre equipos o etc
 );
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
