@@ -55,6 +55,7 @@ RETURNS TRIGGER AS $$
 DECLARE
     available_dorsal INT;
 BEGIN
+BEGIN
     CASE
         WHEN NEW.posicion ILIKE 'Portero' THEN
             available_dorsal := 1;
@@ -129,6 +130,13 @@ BEGIN
     END IF;
     INSERT INTO dorsal_prueba (jugador, dorsal) VALUES (NEW.nombre, available_dorsal);
     RETURN NEW;
+
+    EXCEPTION 
+        WHEN OTHERS THEN
+           RAISE NOTICE 'Error procesando la fila: nombre: %, equipo: %  Error: %',
+               NEW.nombre, NEW.equipo, SQLERRM;
+           RETURN NULL;  -- Ignorar la fila inválida y continuar
+END;
 END;
 $$ LANGUAGE plpgsql;
 
