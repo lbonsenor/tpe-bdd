@@ -74,7 +74,7 @@ BEGIN
             available_dorsal := 7;
         WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN
             available_dorsal := 11;
-        WHEN NEW.posicion ILIKE ('Delantero' OR NEW.posicion ILIKE 'Delantero centro' THEN
+        WHEN NEW.posicion ILIKE 'Delantero' OR NEW.posicion ILIKE 'Delantero centro' THEN
             available_dorsal := 9;
         ELSE
             RAISE NOTICE 'Posicion % desconocida', NEW.posicion;
