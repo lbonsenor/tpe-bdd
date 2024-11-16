@@ -10,15 +10,21 @@
 
 Ingreso a pampero:
 
-``ssh nombreusuario@pampero.itba.edu.ar``
+```
+    ssh nombreusuario@pampero.itba.edu.ar
+```
 
 Conexión a PostgreSQL:
 
-```psql -h bd1.it.itba.edu.ar -U nombreusuario PROOF```
+```
+    psql -h bd1.it.itba.edu.ar -U nombreusuario PROOF
+```
 
 Subir data a pampero:
 
-```scp jugadores-2022.csv username@pampero.itba.edu.ar:/home/username/```
+```
+    scp jugadores-2022.csv username@pampero.itba.edu.ar:/home/username/
+```
 
 | Importante! |
 |-------------|
@@ -26,10 +32,11 @@ Subir data a pampero:
 
 ### Importación de datos
 
-
 #### Setear la fecha en el formato correspondiente:
 
-```SET datestyle ='DMY'```
+``` 
+    SET datestyle ='DMY'
+```
 
 > Obs! Copiar a futbolista_prueba y dorsal_prueba por las dudas
 
@@ -37,7 +44,18 @@ Subir data a pampero:
 
 #### Importar datos a tabla futbolista:
 
-```\copy futbolista_prueba(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor_mercado,equipo) from 'jugadores-2022.csv' delimiter ';' csv header```
+```
+    \copy futbolista_prueba(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor_mercado,equipo) from 'jugadores-2022.csv' delimiter ';' csv header
+```
 
 
 > Obs! No hace falta hacer un copy a dorsal pues eso se debe ejecutar automaticamente con el trigger !
+
+
+### Ejecución del script
+
+Para ejecutar desde la base de datos es:
+
+```
+    \i script.sql
+```
