@@ -142,6 +142,96 @@ EXECUTE PROCEDURE player_validations_and_number();
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Funcion para reporte estadístico
+CREATE OR REPLACE FUNCTION analisis_jugadores(dia DATE)
+RETURNS VOID AS $$
+DECLARE 
+    r RECORD;
+    count_filas INT;
+    linea INT := 1;
+BEGIN
+    -- Validar que fecha no sea null --
+    IF dia IS NULL THEN
+        RAISE EXCEPTION 'Fecha inválida';
+    END IF;
+    -- Validar que existan fechas para realizar el análisis --
+    SELECT COUNT(*) INTO count_filas FROM futbolista_prueba WHERE futbolista_prueba.fichado >= dia;
+    IF count_filas = 0 THEN
+        RETURN;
+    END IF;
+
+    -- Printear headers
+    RAISE INFO '-------------------------------------------------------------------------------------';
+    RAISE INFO '------------------------------ANALISIS DE ASIGNACIONES-------------------------------';
+    RAISE INFO '-------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable-----------------------Fecha------Qty-----Prom_Edad---Prom_Alt---Valor---#---';
+    RAISE INFO '-------------------------------------------------------------------------------------';
+
+    -- Reporte pies
+    FOR r IN 
+        SELECT
+            pie, 
+            TO_CHAR(fichado, 'YYYY-MM') AS mes_fichaje, 
+            COUNT(*) AS qty,
+            ROUND(AVG(edad),2) AS prom_edad,
+            ROUND(AVG(altura),2) AS prom_altura,
+            ROUND(MAX(valor),2) AS valor_maximo
+        FROM futbolista_prueba
+        WHERE fichado > dia
+        GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
+        ORDER BY pie, mes_fichaje
+    LOOP
+        IF r.pie IS NOT NULL THEN
+        RAISE INFO 'Pie: %                       %        %        %        %        %', r.pie, r.mes_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
+        linea := linea + 1;
+        END IF;
+    END LOOP;
+
+    -- Reporte equipos
+    linea := 1; -- Reset 
+    FOR r IN 
+        SELECT
+            equipo, 
+            MIN(fichado) AS fecha_minima_fichaje,
+            COUNT(*) AS qty,
+            ROUND(AVG(edad),2) AS prom_edad,
+            ROUND(AVG(altura),2) AS prom_altura,
+            ROUND(MAX(valor),2) AS valor_maximo
+        FROM futbolista_prueba
+        WHERE fichado > dia
+        GROUP BY equipo
+        ORDER BY valor_maximo DESC
+    LOOP
+        RAISE INFO '%                                %        %        %        %        %',r.equipo, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
+        linea := linea + 1;
+    END LOOP;
+
+    -- Reporte de dorsales
+    linea := 1; -- Reset 
+    FOR r IN 
+        SELECT
+            dp.dorsal,
+            MIN(fichado) AS fecha_minima_fichaje,
+            COUNT(*) AS qty,
+            ROUND(AVG(edad),2) AS prom_edad,
+            ROUND(AVG(altura),2) AS prom_altura,
+            ROUND(MAX(valor),2) AS valor_maximo
+        FROM futbolista_prueba f
+        JOIN dorsal_prueba dp ON f.nombre = dp.jugador
+        WHERE f.fichado > dia
+        GROUP BY dp.dorsal
+        ORDER BY valor_maximo DESC
+    LOOP
+        RAISE INFO 'Dorsal: %                        %        %        %        %        %', r.dorsal, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
+        linea := linea + 1;
+    END LOOP;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Error al generar el reporte: %', SQLERRM;
+    
+END;
+$$ LANGUAGE plpgsql
+
 
 
 
