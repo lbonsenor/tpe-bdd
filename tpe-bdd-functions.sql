@@ -56,25 +56,25 @@ DECLARE
     available_dorsal INT;
 BEGIN
     CASE
-        WHEN NEW.posicion = 'Portero' THEN
+        WHEN NEW.posicion ILIKE 'Portero' THEN
             available_dorsal := 1;
-        WHEN NEW.posicion IN ('Defensa', 'Defensa central') THEN
+        WHEN NEW.posicion ILIKE 'Defensa' OR  NEW.posicion ILIKE 'Defensa central' THEN
             available_dorsal := 2;
-        WHEN NEW.posicion = 'Lateral izquierdo' THEN
+        WHEN NEW.posicion ILIKE 'Lateral izquierdo' THEN
             available_dorsal := 3;
-        WHEN NEW.posicion = 'Lateral derecho' THEN
+        WHEN NEW.posicion ILIKE 'Lateral derecho' THEN
             available_dorsal := 4;
-        WHEN NEW.posicion = 'Pivote' THEN
+        WHEN NEW.posicion ILIKE 'Pivote' THEN
             available_dorsal := 5;
-        WHEN NEW.posicion IN ('Mediocentro', 'Centrocampista', 'Interior derecho', 'Interior izquierdo') THEN
+        WHEN NEW.posicion ILIKE 'Mediocentro' OR NEW.posicion ILIKE 'Centrocampista' OR NEW.posicion ILIKE 'Interior derecho' OR NEW.posicion ILIKE 'Interior izquierdo' THEN
             available_dorsal := 8;
-        WHEN NEW.posicion IN ('Mediocentro ofensivo', 'Mediapunta') THEN
+        WHEN NEW.posicion ILIKE 'Mediocentro ofensivo' OR NEW.posicion ILIKE  'Mediapunta' THEN
             available_dorsal := 10;
-        WHEN NEW.posicion = 'Extremo derecho' THEN
+        WHEN NEW.posicion ILIKE 'Extremo derecho' THEN
             available_dorsal := 7;
-        WHEN NEW.posicion = 'Extremo izquierdo' THEN
+        WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN
             available_dorsal := 11;
-        WHEN NEW.posicion IN ('Delantero', 'Delantero centro') THEN
+        WHEN NEW.posicion ILIKE ('Delantero' OR NEW.posicion ILIKE 'Delantero centro' THEN
             available_dorsal := 9;
         ELSE
             RAISE NOTICE 'Posicion % desconocida', NEW.posicion;
@@ -86,7 +86,7 @@ BEGIN
     RAISE NOTICE 'Dorsal para jugador % ya existe en % con dorsal %', NEW.nombre , NEW.equipo, available_dorsal;
         -- Alternativa según posición?
         CASE
-            WHEN NEW.posicion = 'Portero' THEN
+            WHEN NEW.posicion ILIKE 'Portero' THEN
                 IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 12 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 12;
                 ELSE
@@ -94,7 +94,7 @@ BEGIN
                     PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
                     RETURN NEW;
                 END IF;
-            WHEN NEW.posicion IN ('Defensa', 'Defensa central') THEN
+            WHEN NEW.posicion ILIKE 'Defensa' OR  NEW.posicion ILIKE 'Defensa central' THEN
                 IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 6 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 6;
                 ELSE
@@ -102,7 +102,7 @@ BEGIN
                     PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
                     RETURN NEW;
                 END IF;
-            WHEN NEW.posicion = 'Extremo derecho' THEN
+            WHEN NEW.posicion ILIKE 'Extremo derecho' THEN
                 IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 11 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 11;
                 ELSE
@@ -110,7 +110,7 @@ BEGIN
                     PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
                     RETURN NEW;
                 END IF;
-            WHEN NEW.posicion = 'Extremo izquierdo' THEN
+            WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN
                 IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 7 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 7;
                 ELSE
