@@ -25,6 +25,7 @@ CREATE TABLE dorsal_prueba (
     PRIMARY KEY(jugador)
 );
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Helper para insertar en el prox lugar disponible
 CREATE OR REPLACE FUNCTION assign_next_available_dorsal(team_name VARCHAR, player_name VARCHAR)
@@ -47,7 +48,6 @@ BEGIN
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
-
 
 -- Funcion a ejecutar en insercion en jugador
 CREATE OR REPLACE FUNCTION player_validations_and_number()
@@ -139,3 +139,14 @@ BEFORE INSERT ON futbolista_prueba
 FOR EACH ROW
 EXECUTE PROCEDURE player_validations_and_number();
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Funcion para reporte estadístico
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
