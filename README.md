@@ -39,5 +39,5 @@ Subir data a pampero:
 
 ```\copy futbolista_prueba(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor_mercado,equipo) from 'jugadores-2022.csv' delimiter ';' csv header```
 
-#### Importar datos a tabla dorsal:
-```\copy dorsal_prueba(jugador,dorsal) from 'jugadores-2022.csv' delimiter ';' csv header```
+
+> Obs! No hace falta hacer un copy a dorsal pues eso se debe ejecutar automaticamente con el trigger !
