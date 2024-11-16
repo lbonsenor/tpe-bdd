@@ -82,7 +82,7 @@ BEGIN
     END CASE;
     
     -- Si es repetido busco otro available
-    IF EXISTS (SELECT 1 FROM dorsal_prueba, futbolista_prueba WHERE dorsal = available_dorsal AND jugador != NEW.nombre AND NEW.equipo = (futbolista_prueba.equipo)) THEN
+    IF EXISTS (SELECT 1 FROM dorsal_prueba, futbolista_prueba WHERE dorsal = available_dorsal AND dorsal_prueba.jugador = futbolista_prueba.nombre AND jugador != NEW.nombre AND NEW.equipo = (futbolista_prueba.equipo)) THEN
     RAISE NOTICE 'Dorsal para jugador % ya existe en % con dorsal %', NEW.nombre , NEW.equipo, available_dorsal;
         -- Alternativa según posición?
         CASE
