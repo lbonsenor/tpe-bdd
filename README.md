@@ -72,4 +72,3 @@ Para ejecutar desde la base de datos es:
 
 ### Observaciones adicionales:
 
-* Utilizar ILIKE para que sea case insensitive (proteccion contra inserciones con mayúsculas disitntas) -> falta esto
