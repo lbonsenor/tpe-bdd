@@ -1,3 +1,6 @@
+DROP TABLE futbolista_prueba CASCADE;
+DROP TABLE dorsal_prueba CASCADE;
+
 -- Preliminar pues el predeterminado es MDY
 SET datestyle ='DMY';
 
@@ -15,8 +18,119 @@ CREATE TABLE futbolista_prueba (
     PRIMARY KEY(nombre, equipo) --asumo que no se repiten los nombres dentro del mismo equipo
 );
 
+-- Creacion de tabla dorsal 
 CREATE TABLE dorsal_prueba (
     jugador         VARCHAR(50) NOT NULL,
     dorsal          int NOT NULL,
-    PRIMARY KEY(jugador, dorsal)
+    PRIMARY KEY(jugador)
 );
+
+
+-- Helper para insertar en el prox lugar disponible
+CREATE OR REPLACE FUNCTION assign_next_available_dorsal(team_name VARCHAR, player_name VARCHAR)
+RETURNS VOID AS $$
+DECLARE
+    next_dorsal INT := 13;
+BEGIN
+    -- Next available desde 13
+    LOOP
+        IF NOT EXISTS (SELECT 1
+            FROM dorsal_prueba dp
+            JOIN futbolista_prueba fp ON fp.nombre = dp.jugador
+            WHERE dp.dorsal = next_dorsal
+            AND fp.equipo = team_name) THEN
+            INSERT INTO dorsal_prueba (jugador, dorsal) VALUES (player_name, next_dorsal);
+            RETURN;
+        ELSE
+                      RAISE NOTICE 'pass to next';
+
+            next_dorsal := next_dorsal + 1;
+        END IF;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Funcion a ejecutar en insercion en jugador
+CREATE OR REPLACE FUNCTION player_validations_and_number()
+RETURNS TRIGGER AS $$
+DECLARE
+    available_dorsal INT;
+BEGIN
+    CASE
+        WHEN NEW.posicion = 'Portero' THEN
+            available_dorsal := 1;
+        WHEN NEW.posicion IN ('Defensa', 'Defensa central') THEN
+            available_dorsal := 2;
+        WHEN NEW.posicion = 'Lateral izquierdo' THEN
+            available_dorsal := 3;
+        WHEN NEW.posicion = 'Lateral derecho' THEN
+            available_dorsal := 4;
+        WHEN NEW.posicion = 'Pivote' THEN
+            available_dorsal := 5;
+        WHEN NEW.posicion IN ('Mediocentro', 'Centrocampista', 'Interior derecho', 'Interior izquierdo') THEN
+            available_dorsal := 8;
+        WHEN NEW.posicion IN ('Mediocentro ofensivo', 'Mediapunta') THEN
+            available_dorsal := 10;
+        WHEN NEW.posicion = 'Extremo derecho' THEN
+            available_dorsal := 7;
+        WHEN NEW.posicion = 'Extremo izquierdo' THEN
+            available_dorsal := 11;
+        WHEN NEW.posicion IN ('Delantero', 'Delantero centro') THEN
+            available_dorsal := 9;
+        ELSE
+            RAISE NOTICE 'Posicion % desconocida', NEW.posicion;
+            RETURN NULL; 
+    END CASE;
+    
+    -- Si es repetido busco otro available
+    IF EXISTS (SELECT 1 FROM dorsal_prueba, futbolista_prueba WHERE dorsal = available_dorsal AND jugador != NEW.nombre AND NEW.equipo = (futbolista_prueba.equipo)) THEN
+        -- Alternativa según posición?
+        CASE
+            WHEN NEW.posicion = 'Portero' THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba WHERE dorsal = 12 AND jugador != NEW.nombre AND NEW.equipo = (SELECT equipo FROM futbolista_prueba WHERE nombre = NEW.nombre LIMIT 1)) THEN
+                    available_dorsal := 12;
+                ELSE
+                    PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+                    RETURN NEW;
+                END IF;
+            WHEN NEW.posicion IN ('Defensa', 'Defensa central') THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba WHERE dorsal = 6 AND jugador != NEW.nombre AND NEW.equipo = (SELECT equipo FROM futbolista_prueba WHERE nombre = NEW.nombre LIMIT 1)) THEN
+                    available_dorsal := 6;
+                ELSE
+                    PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+                    RETURN NEW;
+                END IF;
+            WHEN NEW.posicion = 'Extremo derecho' THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba WHERE dorsal = 11 AND jugador != NEW.nombre AND NEW.equipo = (SELECT equipo FROM futbolista_prueba WHERE nombre = NEW.nombre LIMIT 1)) THEN
+                    available_dorsal := 11;
+                ELSE
+                    PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+                    RETURN NEW;
+                END IF;
+            WHEN NEW.posicion = 'Extremo izquierdo' THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba WHERE dorsal = 7 AND jugador != NEW.nombre AND NEW.equipo = (SELECT equipo FROM futbolista_prueba WHERE nombre = NEW.nombre LIMIT 1)) THEN
+                    available_dorsal := 7;
+                ELSE
+                    PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+                    RETURN NEW;
+                END IF;
+            ELSE
+                -- Default no hay alternativas
+                PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+                RETURN NEW;
+        END CASE;
+      -- Default
+      INSERT INTO dorsal_prueba (jugador, dorsal) VALUES (NEW.nombre, available_dorsal);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger
+CREATE TRIGGER on_player_insert
+BEFORE INSERT ON futbolista_prueba
+FOR EACH ROW
+EXECUTE PROCEDURE player_validations_and_number();
+
