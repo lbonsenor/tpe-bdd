@@ -14,17 +14,20 @@ Ingreso a pampero:
     ssh nombreusuario@pampero.itba.edu.ar
 ```
 
+Subir archivos a pampero:
+
+```
+    scp jugadores-2022.csv username@pampero.itba.edu.ar:/home/username/
+```
+> hay que subir ```tpe-bdd-functions.sql``` y ```tests.sql```
+
 Conexión a PostgreSQL:
 
 ```
     psql -h bd1.it.itba.edu.ar -U nombreusuario PROOF
 ```
 
-Subir data a pampero:
 
-```
-    scp jugadores-2022.csv username@pampero.itba.edu.ar:/home/username/
-```
 
 | Importante! |
 |-------------|
@@ -40,7 +43,13 @@ Subir data a pampero:
 
 > Obs! Copiar a futbolista_prueba y dorsal_prueba por las dudas
 
-> Aún no importar porque faltan los triggers y etc
+### Ejecución de los scripts
+
+Para ejecutar desde la base de datos es:
+
+```
+    \i script.sql
+```
 
 #### Importar datos a tabla futbolista:
 
@@ -52,14 +61,16 @@ Subir data a pampero:
 > Obs! No hace falta hacer un copy a dorsal pues eso se debe ejecutar automaticamente con el trigger !
 
 
-### Ejecución del script
-
-Para ejecutar desde la base de datos es:
+#### Ejecutar funciones
 
 ```
-    \i script.sql
+    SELECT test();
+```
+
+```
+    SELECT analisis_jugadores('YYYY-MM-DD');
 ```
 
 ### Observaciones adicionales:
 
-* Utilizar ILIKE para que sea case insensitive (proteccion contra inserciones con mayúsculas disitntas)
+* Utilizar ILIKE para que sea case insensitive (proteccion contra inserciones con mayúsculas disitntas) -> falta esto
