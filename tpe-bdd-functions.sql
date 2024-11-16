@@ -180,7 +180,7 @@ BEGIN
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
         ORDER BY pie, mes_fichaje
     LOOP
-        IF r.pie IS NOT NULL THEN
+        IF r.pie IS NOT NULL AND r.valor_maximo IS NOT NULL THEN
         RAISE INFO 'Pie: %                       %        %        %        %        %', r.pie, r.mes_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
         END IF;
@@ -201,8 +201,10 @@ BEGIN
         GROUP BY equipo
         ORDER BY valor_maximo DESC
     LOOP
+        IF r.valor_maximo IS NOT NULL THEN 
         RAISE INFO '%                                %        %        %        %        %',r.equipo, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
+        END IF;
     END LOOP;
 
     -- Reporte de dorsales
@@ -221,7 +223,7 @@ BEGIN
         GROUP BY dp.dorsal
         ORDER BY valor_maximo DESC
     LOOP
-        IF r.dorsal < 13 THEN -- "dorsales principales"
+        IF r.dorsal < 13 AND r.valor_maximo IS NOT NULL THEN -- "dorsales principales"
         RAISE INFO 'Dorsal: %                        %        %        %        %        %', r.dorsal, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
         END IF;
