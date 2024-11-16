@@ -8,7 +8,7 @@ SET datestyle ='DMY';
 CREATE TABLE futbolista_prueba (
     nombre          VARCHAR(50) NOT NULL,
     posicion        VARCHAR(20),
-    edad            int NOT NULL,
+    edad            int,
     altura          NUMERIC(10,2),
     pie             VARCHAR(15),
     fichado         DATE,
@@ -180,7 +180,7 @@ BEGIN
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
         ORDER BY pie, mes_fichaje
     LOOP
-        IF r.pie IS NOT NULL AND r.valor_maximo IS NOT NULL THEN
+        IF r.pie IS NOT NULL AND r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN
         RAISE INFO 'Pie: %                       %        %        %        %        %', r.pie, r.mes_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
         END IF;
@@ -201,7 +201,7 @@ BEGIN
         GROUP BY equipo
         ORDER BY valor_maximo DESC
     LOOP
-        IF r.valor_maximo IS NOT NULL THEN 
+        IF r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN 
         RAISE INFO '%                                %        %        %        %        %',r.equipo, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
         END IF;
@@ -223,7 +223,7 @@ BEGIN
         GROUP BY dp.dorsal
         ORDER BY valor_maximo DESC
     LOOP
-        IF r.dorsal < 13 AND r.valor_maximo IS NOT NULL THEN -- "dorsales principales"
+        IF r.dorsal < 13 AND r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN -- "dorsales principales"
         RAISE INFO 'Dorsal: %                        %        %        %        %        %', r.dorsal, r.fecha_minima_fichaje, r.qty, r.prom_edad, r.prom_altura, r.valor_maximo;
         linea := linea + 1;
         END IF;
