@@ -229,6 +229,7 @@ DECLARE
     r RECORD;
     count_filas INT;
     linea INT := 1;
+    piePH VARCHAR(20) = NULL;
 BEGIN
     IF dia IS NULL THEN
         RAISE EXCEPTION 'Fecha inválida';
@@ -266,6 +267,10 @@ BEGIN
         ORDER BY pie, mes_fichaje
     LOOP
         IF r.pie IS NOT NULL AND r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN
+            IF piePH IS DISTINCT FROM r.pie THEN
+                piePH := r.pie;  
+                linea := 1;      
+            END IF;
             RAISE INFO 'Pie: %    %    %    %    %    %    %',
                 RPAD(r.pie::text, 15),
                 RPAD(r.mes_fichaje::text, 11),
