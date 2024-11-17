@@ -1,11 +1,11 @@
-DROP TABLE futbolista_prueba CASCADE;
-DROP TABLE dorsal_prueba CASCADE;
+DROP TABLE futbolista CASCADE;
+DROP TABLE dorsal CASCADE;
 
 -- Preliminar pues el predeterminado es MDY
 SET datestyle ='DMY';
 
 -- Creacion de tabla futbolista
-CREATE TABLE futbolista_prueba (
+CREATE TABLE futbolista (
     nombre          VARCHAR(50) NOT NULL,
     posicion        VARCHAR(20),
     edad            int,
@@ -19,7 +19,7 @@ CREATE TABLE futbolista_prueba (
 );
 
 -- Creacion de tabla dorsal 
-CREATE TABLE dorsal_prueba (
+CREATE TABLE dorsal (
     jugador         VARCHAR(50) NOT NULL,
     dorsal          int NOT NULL,
     PRIMARY KEY(jugador, dorsal) -- por las dudas de que existan despues nombres repetidos entre equipos o etc
@@ -36,11 +36,11 @@ BEGIN
     -- Next available desde 13
     LOOP
         IF NOT EXISTS (SELECT 1
-            FROM dorsal_prueba dp
-            JOIN futbolista_prueba fp ON fp.nombre = dp.jugador
+            FROM dorsal dp
+            JOIN futbolista fp ON fp.nombre = dp.jugador
             WHERE dp.dorsal = next_dorsal
             AND fp.equipo = team_name) THEN
-            INSERT INTO dorsal_prueba (jugador, dorsal) VALUES (player_name, next_dorsal);
+            INSERT INTO dorsal (jugador, dorsal) VALUES (player_name, next_dorsal);
             RETURN;
         ELSE
             next_dorsal := next_dorsal + 1;
@@ -83,12 +83,12 @@ BEGIN
     END CASE;
     
     -- Si es repetido busco otro available
-    IF EXISTS (SELECT 1 FROM dorsal_prueba, futbolista_prueba WHERE dorsal = available_dorsal AND dorsal_prueba.jugador = futbolista_prueba.nombre AND jugador != NEW.nombre AND NEW.equipo = (futbolista_prueba.equipo)) THEN
+    IF EXISTS (SELECT 1 FROM dorsal, futbolista WHERE dorsal = available_dorsal AND dorsal.jugador = futbolista.nombre AND jugador != NEW.nombre AND NEW.equipo = (futbolista.equipo)) THEN
     RAISE NOTICE 'Dorsal para jugador % ya existe en % con dorsal %', NEW.nombre , NEW.equipo, available_dorsal;
         -- Alternativa según posición?
         CASE
             WHEN NEW.posicion ILIKE 'Portero' THEN
-                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 12 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal dp JOIN futbolista fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 12 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 12;
                 ELSE
                     RAISE NOTICE 'YA HABIA UNO CON DORSAL 12';
@@ -96,7 +96,7 @@ BEGIN
                     RETURN NEW;
                 END IF;
             WHEN NEW.posicion ILIKE 'Defensa' OR  NEW.posicion ILIKE 'Defensa central' THEN
-                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 6 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal dp JOIN futbolista fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 6 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 6;
                 ELSE
                     RAISE NOTICE 'YA HABIA UNO CON DORSAL 6';
@@ -104,7 +104,7 @@ BEGIN
                     RETURN NEW;
                 END IF;
             WHEN NEW.posicion ILIKE 'Extremo derecho' THEN
-                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 11 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal dp JOIN futbolista fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 11 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 11;
                 ELSE
                     RAISE NOTICE 'YA HABIA UNO CON DORSAL 11';
@@ -112,7 +112,7 @@ BEGIN
                     RETURN NEW;
                 END IF;
             WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN
-                IF NOT EXISTS (SELECT 1 FROM dorsal_prueba dp JOIN futbolista_prueba fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 7 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
+                IF NOT EXISTS (SELECT 1 FROM dorsal dp JOIN futbolista fp ON fp.nombre = dp.jugador WHERE dp.dorsal = 7 AND fp.equipo = NEW.equipo AND fp.nombre != NEW.nombre) THEN
                     available_dorsal := 7;
                 ELSE
                     RAISE NOTICE 'YA HABIA UNO CON DORSAL 7';
@@ -128,7 +128,7 @@ BEGIN
     ELSE 
         RAISE NOTICE 'Dorsal para jugador % NO existe en % con dorsal %', NEW.nombre , NEW.equipo, available_dorsal;
     END IF;
-    INSERT INTO dorsal_prueba (jugador, dorsal) VALUES (NEW.nombre, available_dorsal);
+    INSERT INTO dorsal (jugador, dorsal) VALUES (NEW.nombre, available_dorsal);
     RETURN NEW;
 
     EXCEPTION 
@@ -143,7 +143,7 @@ $$ LANGUAGE plpgsql;
 
 -- Trigger
 CREATE TRIGGER on_player_insert
-BEFORE INSERT ON futbolista_prueba
+BEFORE INSERT ON futbolista
 FOR EACH ROW
 EXECUTE PROCEDURE player_validations_and_number();
 
@@ -162,7 +162,7 @@ BEGIN
         RAISE EXCEPTION 'Fecha inválida';
     END IF;
     -- Validar que existan fechas para realizar el análisis --
-    SELECT COUNT(*) INTO count_filas FROM futbolista_prueba WHERE futbolista_prueba.fichado >= dia;
+    SELECT COUNT(*) INTO count_filas FROM futbolista WHERE futbolista.fichado >= dia;
     IF count_filas = 0 THEN
         RETURN;
     END IF;
@@ -183,7 +183,7 @@ BEGIN
             ROUND(AVG(edad),2) AS prom_edad,
             ROUND(AVG(altura),2) AS prom_altura,
             ROUND(MAX(valor),2) AS valor_maximo
-        FROM futbolista_prueba
+        FROM futbolista
         WHERE fichado > dia
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
         ORDER BY pie, mes_fichaje
@@ -204,7 +204,7 @@ BEGIN
             ROUND(AVG(edad),2) AS prom_edad,
             ROUND(AVG(altura),2) AS prom_altura,
             ROUND(MAX(valor),2) AS valor_maximo
-        FROM futbolista_prueba
+        FROM futbolista
         WHERE fichado > dia
         GROUP BY equipo
         ORDER BY valor_maximo DESC
@@ -225,8 +225,8 @@ BEGIN
             ROUND(AVG(edad),2) AS prom_edad,
             ROUND(AVG(altura),2) AS prom_altura,
             ROUND(MAX(valor),2) AS valor_maximo
-        FROM futbolista_prueba f
-        JOIN dorsal_prueba dp ON f.nombre = dp.jugador
+        FROM futbolista f
+        JOIN dorsal dp ON f.nombre = dp.jugador
         WHERE f.fichado > dia
         GROUP BY dp.dorsal
         ORDER BY valor_maximo DESC
