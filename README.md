@@ -17,9 +17,7 @@ Ingreso a pampero:
 Subir archivos a pampero:
 
 ```
-    scp jugadores-2022.csv username@pampero.itba.edu.ar:/home/username/
-    scp tpe-bdd-functions.sql username@pampero.itba.edu.ar:/home/username/
-    scp tests.sql username@pampero.itba.edu.ar:/home/username/
+    scp jugadores-2022.csv tpe-bdd-functions.sql tests.sql username@pampero.itba.edu.ar:/home/username/
 ```
 
 Conexión a PostgreSQL:
@@ -27,7 +25,6 @@ Conexión a PostgreSQL:
 ```
     psql -h bd1.it.itba.edu.ar -U username PROOF
 ```
-
 
 | ¡Importante! |
 |--------------|
@@ -46,7 +43,8 @@ Conexión a PostgreSQL:
 Para ejecutar desde la base de datos es:
 
 ```
-    \i script.sql
+    \i tests.sql
+    \i tpe-bdd-functions.sql
 ```
 
 #### Importar datos a tabla futbolista:
@@ -54,8 +52,6 @@ Para ejecutar desde la base de datos es:
 ```
     \copy futbolista(nombre,posicion,edad,altura,pie,fichado,equipo_anterior,valor,equipo) from 'jugadores-2022.csv' delimiter ';' csv header
 ```
-
-> Obs! No hace falta hacer un copy a dorsal pues eso se debe ejecutar automaticamente con el trigger !
 
 #### Ejecutar funciones
 
@@ -66,6 +62,3 @@ Para ejecutar desde la base de datos es:
 ```
     SELECT analisis_jugadores('YYYY-MM-DD');
 ```
-
-### Observaciones adicionales:
-
