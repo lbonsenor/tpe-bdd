@@ -17,7 +17,8 @@ CREATE TABLE futbolista (
     equipo_anterior VARCHAR(50),
     valor NUMERIC(10, 2), -- Money no es tan preciso, y tampoco es muy probable que tengan un valor de un billón de dólares
     equipo VARCHAR(50) NOT NULL,
-    PRIMARY KEY(nombre, equipo) -- Asumo que no se repiten los nombres dentro del mismo equipo
+    PRIMARY KEY(nombre, equipo), -- Asumo que no se repiten los nombres dentro del mismo equipo
+    UNIQUE(nombre)
 );
 
 -- Creación de tabla dorsal
