@@ -229,152 +229,135 @@ INSERT
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Función para reporte estadístico
-CREATE
-OR REPLACE FUNCTION analisis_jugadores(dia DATE) RETURNS VOID AS $$ DECLARE r RECORD;
+CREATE OR REPLACE FUNCTION analisis_jugadores(dia DATE) RETURNS VOID AS $$
+DECLARE
+    r RECORD;
+    count_filas INT;
+    linea INT := 1;
+BEGIN
+    IF dia IS NULL THEN
+        RAISE EXCEPTION 'Fecha inválida';
+    END IF;
 
-count_filas INT;
+    SELECT COUNT(*) INTO count_filas
+    FROM futbolista
+    WHERE futbolista.fichado >= dia;
 
-linea INT := 1;
+    IF count_filas = 0 THEN
+        RETURN;
+    END IF;
 
-BEGIN -- Validar que fecha no sea null
-IF dia IS NULL THEN RAISE EXCEPTION 'Fecha inválida';
+    -- Headers
+    RAISE INFO '------------------------------------------------------------------------------------------------------';
+    RAISE INFO '                                  ANALISIS DE JUGADORES Y EQUIPOS'                                     ;
+    RAISE INFO '------------------------------------------------------------------------------------------------------';
+    RAISE INFO '                                      REPORTE DE ASIGNACIONES                                         ';
+    RAISE INFO '------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable                Fecha          Qty        Prom_Edad      Prom_Alt      Valor                 #';
+    RAISE INFO '------------------------------------------------------------------------------------------------------';
 
-END IF;
+    -- Reporte de pie preferido
+    FOR r IN
+        SELECT
+            pie,
+            TO_CHAR(fichado, 'YYYY-MM') AS mes_fichaje,
+            COUNT(*) AS qty,
+            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(altura), 2) AS prom_altura,
+            ROUND(MAX(valor), 2) AS valor_maximo
+        FROM futbolista
+        WHERE fichado > dia
+        GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
+        ORDER BY pie, mes_fichaje
+    LOOP
+        IF r.pie IS NOT NULL AND r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN
+            RAISE INFO 'Pie: %    %    %    %    %    %    %',
+                RPAD(r.pie::text, 15),
+                RPAD(r.mes_fichaje::text, 11),
+                LPAD(r.qty::text, 2),
+                LPAD(r.prom_edad::text, 10),
+                LPAD(r.prom_altura::text, 10),
+                LPAD(r.valor_maximo::text, 16),
+                LPAD(linea::text, 9);
+            linea := linea + 1;
+        END IF;
+    END LOOP;
 
--- Validar que existan fechas para realizar el análisis
-SELECT
-    COUNT(*) INTO count_filas
-FROM
-    futbolista
-WHERE
-    futbolista.fichado >= dia;
+    -- Reporte de equipos
+    linea := 1;
+    
+    RAISE INFO '';
+    RAISE INFO '-----------------------------------------------------------------------------------------------------------';
+    RAISE INFO '                                          REPORTE POR EQUIPOS                                              ';
+    RAISE INFO '-----------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable                        Fecha           Qty        Prom_Edad      Prom_Alt     Valor              #';
+    RAISE INFO '-----------------------------------------------------------------------------------------------------------';
 
-IF count_filas = 0 THEN RETURN;
+    FOR r IN
+        SELECT
+            equipo,
+            MIN(fichado) AS fecha_minima_fichaje,
+            COUNT(*) AS qty,
+            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(altura), 2) AS prom_altura,
+            ROUND(MAX(valor), 2) AS valor_maximo
+        FROM futbolista
+        WHERE fichado > dia
+        GROUP BY equipo
+        ORDER BY valor_maximo DESC
+    LOOP
+        IF r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN
+            RAISE INFO '%    %    %    %    %    %    %',
+                RPAD(r.equipo::text, 28),
+                RPAD(r.fecha_minima_fichaje::text, 11),
+                LPAD(r.qty::text, 3),
+                LPAD(r.prom_edad::text, 10),
+                LPAD(r.prom_altura::text, 10),
+                LPAD(r.valor_maximo::text, 16),
+                LPAD(linea::text, 5);
+            linea := linea + 1;
+        END IF;
+    END LOOP;
 
-END IF;
+    -- Reporte de dorsales
+    linea := 1;
 
--- Printear headers
-RAISE INFO '-------------------------------------------------------------------------------------------';
-RAISE INFO '                                 ANÁLISIS DE ASIGNACIONES                                  ';
-RAISE INFO '-------------------------------------------------------------------------------------------';
-RAISE INFO 'Variable                   Fecha       Qty    Prom_Edad    Prom_Alt    Valor          Linea';
-RAISE INFO '-------------------------------------------------------------------------------------------';
-
--- Reporte de pie preferido
-FOR r IN
-SELECT
-    pie,
-    TO_CHAR(fichado, 'YYYY-MM') AS mes_fichaje,
-    COUNT(*) AS qty,
-    ROUND(AVG(edad), 2) AS prom_edad,
-    ROUND(AVG(altura), 2) AS prom_altura,
-    ROUND(MAX(valor), 2) AS valor_maximo
-FROM
-    futbolista
-WHERE
-    fichado > dia
-GROUP BY
-    pie,
-    TO_CHAR(fichado, 'YYYY-MM')
-ORDER BY
-    pie,
-    mes_fichaje LOOP IF r.pie IS NOT NULL
-    AND r.valor_maximo IS NOT NULL
-    AND r.prom_edad IS NOT NULL
-    AND r.prom_altura IS NOT NULL THEN RAISE INFO 'Pie: %                       %        %        %        %        %        %',
-    r.pie,
-    r.mes_fichaje,
-    r.qty,
-    r.prom_edad,
-    r.prom_altura,
-    r.valor_maximo,
-    linea;
-
-linea := linea + 1;
-
-END IF;
-
-END LOOP;
-
--- Reporte de equipos
-linea := 1;
-
--- Reset 
-FOR r IN
-SELECT
-    equipo,
-    MIN(fichado) AS fecha_minima_fichaje,
-    COUNT(*) AS qty,
-    ROUND(AVG(edad), 2) AS prom_edad,
-    ROUND(AVG(altura), 2) AS prom_altura,
-    ROUND(MAX(valor), 2) AS valor_maximo
-FROM
-    futbolista
-WHERE
-    fichado > dia
-GROUP BY
-    equipo
-ORDER BY
-    valor_maximo DESC LOOP IF r.valor_maximo IS NOT NULL
-    AND r.prom_edad IS NOT NULL
-    AND r.prom_altura IS NOT NULL THEN RAISE INFO '%                                %        %        %        %        %      %',
-    r.equipo,
-    r.fecha_minima_fichaje,
-    r.qty,
-    r.prom_edad,
-    r.prom_altura,
-    r.valor_maximo,
-    linea;
-
-linea := linea + 1;
-
-END IF;
-
-END LOOP;
-
--- Reporte de dorsales
-linea := 1;
-
--- Reset 
-FOR r IN
-SELECT
-    dp.dorsal,
-    MIN(fichado) AS fecha_minima_fichaje,
-    COUNT(*) AS qty,
-    ROUND(AVG(edad), 2) AS prom_edad,
-    ROUND(AVG(altura), 2) AS prom_altura,
-    ROUND(MAX(valor), 2) AS valor_maximo
-FROM
-    futbolista f
-    JOIN dorsal dp ON f.nombre = dp.jugador
-WHERE
-    f.fichado > dia
-GROUP BY
-    dp.dorsal
-ORDER BY
-    valor_maximo DESC LOOP IF r.dorsal < 13
-    AND r.valor_maximo IS NOT NULL
-    AND r.prom_edad IS NOT NULL
-    AND r.prom_altura IS NOT NULL THEN -- "Dorsales principales"
-    RAISE INFO 'Dorsal: %                        %        %        %        %        %       %',
-    r.dorsal,
-    r.fecha_minima_fichaje,
-    r.qty,
-    r.prom_edad,
-    r.prom_altura,
-    r.valor_maximo,
-    linea;
-
-linea := linea + 1;
-
-END IF;
-
-END LOOP;
+    RAISE INFO '';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO '                                       REPORTE POR DORSALES                                             ';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable                Fecha          Qty         Prom_Edad      Prom_Alt     Valor                   #';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    
+    FOR r IN
+        SELECT
+            dp.dorsal,
+            MIN(fichado) AS fecha_minima_fichaje,
+            COUNT(*) AS qty,
+            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(altura), 2) AS prom_altura,
+            ROUND(MAX(valor), 2) AS valor_maximo
+        FROM futbolista f
+        JOIN dorsal dp ON f.nombre = dp.jugador
+        WHERE f.fichado > dia
+        GROUP BY dp.dorsal
+        ORDER BY valor_maximo DESC
+    LOOP
+        IF r.dorsal < 13 AND r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN
+            RAISE INFO 'Dorsal: %    %    %    %    %    %    %',
+                RPAD(r.dorsal::text, 12),
+                RPAD(r.fecha_minima_fichaje::text, 11),
+                LPAD(r.qty::text, 3),
+                LPAD(r.prom_edad::text, 10),
+                LPAD(r.prom_altura::text, 10),
+                LPAD(r.valor_maximo::text, 16),
+                LPAD(linea::text, 10);
+            linea := linea + 1;
+        END IF;
+    END LOOP;
 
 EXCEPTION
-WHEN OTHERS THEN RAISE NOTICE 'Error al generar el reporte: %',
-SQLERRM;
-
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Error al generar el reporte: %', SQLERRM;
 END;
-
-$$ LANGUAGE plpgsql
+$$ LANGUAGE plpgsql;
