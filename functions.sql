@@ -9,7 +9,7 @@ SET
 -- Creación de tabla futbolista
 CREATE TABLE futbolista (
     nombre VARCHAR(50) NOT NULL,
-    posicion VARCHAR(20),
+    posicion VARCHAR(20) NOT NULL,
     edad int,
     altura NUMERIC(10, 2),
     pie VARCHAR(15),
@@ -17,16 +17,14 @@ CREATE TABLE futbolista (
     equipo_anterior VARCHAR(50),
     valor NUMERIC(10, 2), -- Money no es tan preciso, y tampoco es muy probable que tengan un valor de un billón de dólares
     equipo VARCHAR(50) NOT NULL,
-    PRIMARY KEY(nombre, equipo), -- Asumo que no se repiten los nombres dentro del mismo equipo
-    UNIQUE(nombre)
+    PRIMARY KEY(nombre, equipo, posicion) -- Asumo que no se repiten los nombres dentro del mismo equipo
 );
 
 -- Creación de tabla dorsal
 CREATE TABLE dorsal (
     jugador VARCHAR(50) NOT NULL,
     dorsal int NOT NULL,
-    PRIMARY KEY(jugador, dorsal), -- Por las dudas de que existan despues nombres repetidos entre equipos
-    FOREIGN KEY (jugador) REFERENCES futbolista(nombre) -- Clave foránea
+    PRIMARY KEY(jugador, dorsal) -- Por las dudas de que existan despues nombres repetidos entre equipos
 );
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -256,15 +254,11 @@ IF count_filas = 0 THEN RETURN;
 END IF;
 
 -- Printear headers
-RAISE INFO '-------------------------------------------------------------------------------------';
-
-RAISE INFO '------------------------------ANALISIS DE ASIGNACIONES-------------------------------';
-
-RAISE INFO '-------------------------------------------------------------------------------------';
-
-RAISE INFO 'Variable-----------------------Fecha------Qty-----Prom_Edad---Prom_Alt---Valor---#---';
-
-RAISE INFO '-------------------------------------------------------------------------------------';
+RAISE INFO '-------------------------------------------------------------------------------------------';
+RAISE INFO '                                 ANÁLISIS DE ASIGNACIONES                                  ';
+RAISE INFO '-------------------------------------------------------------------------------------------';
+RAISE INFO 'Variable                   Fecha       Qty    Prom_Edad    Prom_Alt    Valor          Linea';
+RAISE INFO '-------------------------------------------------------------------------------------------';
 
 -- Reporte de pie preferido
 FOR r IN
