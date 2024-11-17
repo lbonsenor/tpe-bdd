@@ -17,7 +17,7 @@ Ingreso a pampero:
 Subir archivos a pampero:
 
 ```
-    scp jugadores-2022.csv tpe-bdd-functions.sql tests.sql username@pampero.itba.edu.ar:/home/username/
+    scp jugadores-2022.csv functions.sql tests.sql username@pampero.itba.edu.ar:/home/username/
 ```
 
 Conexión a PostgreSQL:
@@ -44,7 +44,7 @@ Para ejecutar desde la base de datos es:
 
 ```
     \i tests.sql
-    \i tpe-bdd-functions.sql
+    \i functions.sql
 ```
 
 #### Importar datos a tabla futbolista:
