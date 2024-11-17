@@ -112,10 +112,7 @@ IF EXISTS (
         AND dorsal.jugador = futbolista.nombre
         AND jugador != NEW.nombre
         AND NEW.equipo = (futbolista.equipo)
-) THEN RAISE NOTICE 'Dorsal para jugador % ya existe en % con dorsal %',
-NEW.nombre,
-NEW.equipo,
-available_dorsal;
+) THEN 
 
 -- Alternativa según posición
 CASE
@@ -130,8 +127,6 @@ CASE
             AND fp.equipo = NEW.equipo
             AND fp.nombre != NEW.nombre
     ) THEN available_dorsal := 12;
-
-ELSE RAISE NOTICE 'YA HABÍA UNO CON DORSAL 12';
 
 PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
 
@@ -152,8 +147,6 @@ OR NEW.posicion ILIKE 'Defensa central' THEN IF NOT EXISTS (
         AND fp.nombre != NEW.nombre
 ) THEN available_dorsal := 6;
 
-ELSE RAISE NOTICE 'YA HABÍA UNO CON DORSAL 6';
-
 PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
 
 RETURN NEW;
@@ -171,8 +164,6 @@ WHEN NEW.posicion ILIKE 'Extremo derecho' THEN IF NOT EXISTS (
         AND fp.equipo = NEW.equipo
         AND fp.nombre != NEW.nombre
 ) THEN available_dorsal := 11;
-
-ELSE RAISE NOTICE 'YA HABÍA UNO CON DORSAL 11';
 
 PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
 
@@ -192,8 +183,6 @@ WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN IF NOT EXISTS (
         AND fp.nombre != NEW.nombre
 ) THEN available_dorsal := 7;
 
-ELSE RAISE NOTICE 'YA HABIA UNO CON DORSAL 7';
-
 PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
 
 RETURN NEW;
@@ -207,12 +196,6 @@ RETURN NEW;
 
 END CASE
 ;
-
--- Default
-ELSE RAISE NOTICE 'Dorsal para jugador % NO existe en % con dorsal %',
-NEW.nombre,
-NEW.equipo,
-available_dorsal;
 
 END IF;
 
