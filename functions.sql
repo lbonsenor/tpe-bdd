@@ -20,11 +20,12 @@ CREATE TABLE futbolista (
     PRIMARY KEY(nombre, equipo) -- Asumo que no se repiten los nombres dentro del mismo equipo
 );
 
--- Creación de tabla dorsal 
+-- Creación de tabla dorsal
 CREATE TABLE dorsal (
     jugador VARCHAR(50) NOT NULL,
     dorsal int NOT NULL,
-    PRIMARY KEY(jugador, dorsal) -- Por las dudas de que existan despues nombres repetidos entre equipos
+    PRIMARY KEY(jugador, dorsal), -- Por las dudas de que existan despues nombres repetidos entre equipos
+    FOREIGN KEY (jugador) REFERENCES futbolista(nombre) -- Clave foránea
 );
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
