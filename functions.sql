@@ -3,8 +3,7 @@ DROP TABLE futbolista CASCADE;
 DROP TABLE dorsal CASCADE;
 
 -- El predeterminado es MDY
-SET
-    datestyle = 'DMY';
+SET datestyle = 'DMY';
 
 -- Creación de tabla futbolista
 CREATE TABLE futbolista (
@@ -30,8 +29,7 @@ CREATE TABLE dorsal (
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Helper para insertar en el prox lugar disponible
-CREATE
-OR REPLACE FUNCTION assign_next_available_dorsal(team_name VARCHAR, player_name VARCHAR) RETURNS VOID AS $$ DECLARE next_dorsal INT := 13;
+CREATE OR REPLACE FUNCTION assign_next_available_dorsal(team_name VARCHAR, player_name VARCHAR) RETURNS VOID AS $$ DECLARE next_dorsal INT := 13;
 
 BEGIN -- Next available desde 13
 LOOP IF NOT EXISTS (
@@ -62,8 +60,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Función a ejecutar en inserción en jugador
-CREATE
-OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$ DECLARE available_dorsal INT;
+CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$ DECLARE available_dorsal INT;
 
 BEGIN BEGIN CASE
     WHEN NEW.posicion ILIKE 'Portero' THEN available_dorsal := 1;
@@ -194,8 +191,7 @@ PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
 
 RETURN NEW;
 
-END CASE
-;
+END CASE;
 
 END IF;
 
@@ -223,8 +219,7 @@ $$ LANGUAGE plpgsql;
 
 -- Trigger
 CREATE TRIGGER on_player_insert BEFORE
-INSERT
-    ON futbolista FOR EACH ROW EXECUTE PROCEDURE player_validations_and_number();
+INSERT ON futbolista FOR EACH ROW EXECUTE PROCEDURE player_validations_and_number();
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -251,7 +246,7 @@ BEGIN
     RAISE INFO '------------------------------------------------------------------------------------------------------';
     RAISE INFO '                                  ANALISIS DE JUGADORES Y EQUIPOS'                                     ;
     RAISE INFO '------------------------------------------------------------------------------------------------------';
-    RAISE INFO '                                      REPORTE DE ASIGNACIONES                                         ';
+    RAISE INFO '                                     REPORTE DE PIE PREFERIDO                                         ';
     RAISE INFO '------------------------------------------------------------------------------------------------------';
     RAISE INFO 'Variable                Fecha          Qty        Prom_Edad      Prom_Alt      Valor                 #';
     RAISE INFO '------------------------------------------------------------------------------------------------------';
