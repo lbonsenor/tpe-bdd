@@ -252,7 +252,7 @@ BEGIN
             ROUND(AVG(altura), 2) AS prom_altura,
             ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
-        WHERE fichado >= dia
+        WHERE fichado >= dia AND pie IS NOT NULL AND valor IS NOT NULL
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
         ORDER BY pie, mes_fichaje
     LOOP
@@ -287,7 +287,7 @@ BEGIN
             ROUND(AVG(altura), 2) AS prom_altura,
             ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
-        WHERE fichado >= dia
+        WHERE fichado >= dia AND valor IS NOT NULL
         GROUP BY equipo
         ORDER BY valor_maximo DESC
     LOOP
