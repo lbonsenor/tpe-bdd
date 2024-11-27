@@ -84,9 +84,9 @@ CASE
     WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
     OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
 
-    WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 7;
+    WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 11;
 
-    WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 11;
+    WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 7;
 
     WHEN NEW.posicion ILIKE 'Delantero'
     OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
