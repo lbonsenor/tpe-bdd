@@ -244,11 +244,11 @@ BEGIN
     END IF;
 
     -- Headers
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
-    RAISE INFO '--------------------------------------ANALISIS DE JUGADORES Y EQUIPOS-----------------------------------------';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable------------------------Fecha-----------Qty-------Prom_Edad------Prom_Alt------Valor-----------------#';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '-------------------------------------ANALISIS DE JUGADORES Y EQUIPOS----------------------------------------';
+    RAISE INFO '------------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable------------------------Fecha----------Qty-------Prom_Edad------Prom_Alt------Valor---------------#-';
+    RAISE INFO '------------------------------------------------------------------------------------------------------------';
 
     -- Reporte de pie preferido
     FOR r IN
@@ -272,11 +272,11 @@ BEGIN
             RAISE INFO 'Pie: %    %    %    %    %    %    %',
                 RPAD(r.pie::text, 23),
                 RPAD(r.mes_fichaje::text, 11),
-                LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 9),
-                LPAD(r.prom_altura::text, 10),
-                LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 9);
+                RPAD(r.qty::text, 6),
+                RPAD(r.prom_edad::text, 11),
+                RPAD(r.prom_altura::text, 10),
+                RPAD(r.valor_maximo::text, 16),
+                RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
@@ -284,7 +284,7 @@ BEGIN
     -- Reporte de equipos
     linea := 1;
     
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';   
+    RAISE INFO '------------------------------------------------------------------------------------------------------------';   
 
     FOR r IN
         SELECT
@@ -303,11 +303,11 @@ BEGIN
             RAISE INFO '%    %    %    %    %    %    %',
                 RPAD(r.equipo::text, 28),
                 RPAD(r.fecha_minima_fichaje::text, 11),
-                LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 9),
-                LPAD(r.prom_altura::text, 10),
-                LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 9);
+                RPAD(r.qty::text, 6),
+                RPAD(r.prom_edad::text, 11),
+                RPAD(r.prom_altura::text, 10),
+                RPAD(r.valor_maximo::text, 16),
+                RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
@@ -315,7 +315,7 @@ BEGIN
     -- Reporte de dorsales
     linea := 1;
 
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '------------------------------------------------------------------------------------------------------------';
     
     FOR r IN
         SELECT
@@ -335,16 +335,16 @@ BEGIN
             RAISE INFO 'Dorsal: %    %    %    %    %    %    %',
                 RPAD(r.dorsal::text, 20),
                 RPAD(r.fecha_minima_fichaje::text, 11),
-                LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 9),
-                LPAD(r.prom_altura::text, 10),
-                LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 9);
+                RPAD(r.qty::text, 6),
+                RPAD(r.prom_edad::text, 11),
+                RPAD(r.prom_altura::text, 10),
+                RPAD(r.valor_maximo::text, 16),
+                RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
 
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '------------------------------------------------------------------------------------------------------------';
 
 EXCEPTION
     WHEN OTHERS THEN
