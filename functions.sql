@@ -244,13 +244,11 @@ BEGIN
     END IF;
 
     -- Headers
-    RAISE INFO '------------------------------------------------------------------------------------------------------';
-    RAISE INFO '                                  ANALISIS DE JUGADORES Y EQUIPOS'                                     ;
-    RAISE INFO '------------------------------------------------------------------------------------------------------';
-    RAISE INFO '                                     REPORTE DE PIE PREFERIDO                                         ';
-    RAISE INFO '------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable                Fecha          Qty        Prom_Edad      Prom_Alt      Valor                 #';
-    RAISE INFO '------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------ANALISIS DE JUGADORES Y EQUIPOS-----------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable------------------------Fecha----------Qty--------Prom_Edad------Prom_Alt------Valor-----------------#';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
 
     -- Reporte de pie preferido
     FOR r IN
@@ -272,7 +270,7 @@ BEGIN
                 linea := 1;      
             END IF;
             RAISE INFO 'Pie: %    %    %    %    %    %    %',
-                RPAD(r.pie::text, 15),
+                RPAD(r.pie::text, 23),
                 RPAD(r.mes_fichaje::text, 11),
                 LPAD(r.qty::text, 2),
                 LPAD(r.prom_edad::text, 10),
@@ -286,12 +284,7 @@ BEGIN
     -- Reporte de equipos
     linea := 1;
     
-    RAISE INFO '';
-    RAISE INFO '-----------------------------------------------------------------------------------------------------------';
-    RAISE INFO '                                          REPORTE POR EQUIPOS                                              ';
-    RAISE INFO '-----------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable                        Fecha           Qty        Prom_Edad      Prom_Alt     Valor              #';
-    RAISE INFO '-----------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------------';   
 
     FOR r IN
         SELECT
@@ -311,10 +304,10 @@ BEGIN
                 RPAD(r.equipo::text, 28),
                 RPAD(r.fecha_minima_fichaje::text, 11),
                 LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 10),
+                LPAD(r.prom_edad::text, 9),
                 LPAD(r.prom_altura::text, 10),
                 LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 5);
+                LPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
@@ -322,12 +315,7 @@ BEGIN
     -- Reporte de dorsales
     linea := 1;
 
-    RAISE INFO '';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------';
-    RAISE INFO '                                       REPORTE POR DORSALES                                             ';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable                Fecha          Qty         Prom_Edad      Prom_Alt     Valor                   #';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
     
     FOR r IN
         SELECT
@@ -345,13 +333,13 @@ BEGIN
     LOOP
         IF r.dorsal < 13 AND r.valor_maximo IS NOT NULL AND r.prom_edad IS NOT NULL AND r.prom_altura IS NOT NULL THEN
             RAISE INFO 'Dorsal: %    %    %    %    %    %    %',
-                RPAD(r.dorsal::text, 12),
+                RPAD(r.dorsal::text, 20),
                 RPAD(r.fecha_minima_fichaje::text, 11),
                 LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 10),
+                LPAD(r.prom_edad::text, 9),
                 LPAD(r.prom_altura::text, 10),
                 LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 10);
+                LPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
