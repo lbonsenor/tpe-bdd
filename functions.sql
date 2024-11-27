@@ -244,11 +244,11 @@ BEGIN
     END IF;
 
     -- Headers
-    RAISE INFO '------------------------------------------------------------------------------------------------------------';
-    RAISE INFO '-------------------------------------ANALISIS DE JUGADORES Y EQUIPOS----------------------------------------';
-    RAISE INFO '------------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable------------------------Fecha----------Qty-------Prom_Edad------Prom_Alt------Valor---------------#-';
-    RAISE INFO '------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO '-----------------------------------ANALISIS DE JUGADORES Y EQUIPOS--------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable------------------------Fecha----------Qty-------Prom_Edad------Prom_Alt------Valor-----------#-';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
 
     -- Reporte de pie preferido
     FOR r IN
@@ -256,9 +256,9 @@ BEGIN
             pie,
             TO_CHAR(fichado, 'YYYY-MM') AS mes_fichaje,
             COUNT(*) AS qty,
-            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(edad), 1) AS prom_edad,
             ROUND(AVG(altura), 2) AS prom_altura,
-            ROUND(MAX(valor), 2) AS valor_maximo
+            ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
         WHERE fichado > dia
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
@@ -275,7 +275,7 @@ BEGIN
                 RPAD(r.qty::text, 6),
                 RPAD(r.prom_edad::text, 11),
                 RPAD(r.prom_altura::text, 10),
-                RPAD(r.valor_maximo::text, 16),
+                RPAD(r.valor_maximo::text, 12),
                 RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
@@ -284,16 +284,16 @@ BEGIN
     -- Reporte de equipos
     linea := 1;
     
-    RAISE INFO '------------------------------------------------------------------------------------------------------------';   
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';   
 
     FOR r IN
         SELECT
             equipo,
             MIN(fichado) AS fecha_minima_fichaje,
             COUNT(*) AS qty,
-            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(edad), 1) AS prom_edad,
             ROUND(AVG(altura), 2) AS prom_altura,
-            ROUND(MAX(valor), 2) AS valor_maximo
+            ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
         WHERE fichado > dia
         GROUP BY equipo
@@ -306,7 +306,7 @@ BEGIN
                 RPAD(r.qty::text, 6),
                 RPAD(r.prom_edad::text, 11),
                 RPAD(r.prom_altura::text, 10),
-                RPAD(r.valor_maximo::text, 16),
+                RPAD(r.valor_maximo::text, 12),
                 RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
@@ -315,16 +315,16 @@ BEGIN
     -- Reporte de dorsales
     linea := 1;
 
-    RAISE INFO '------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
     
     FOR r IN
         SELECT
             dp.dorsal,
             MIN(fichado) AS fecha_minima_fichaje,
             COUNT(*) AS qty,
-            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(edad), 1) AS prom_edad,
             ROUND(AVG(altura), 2) AS prom_altura,
-            ROUND(MAX(valor), 2) AS valor_maximo
+            ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista f
         JOIN dorsal dp ON f.nombre = dp.jugador
         WHERE f.fichado > dia
@@ -338,13 +338,13 @@ BEGIN
                 RPAD(r.qty::text, 6),
                 RPAD(r.prom_edad::text, 11),
                 RPAD(r.prom_altura::text, 10),
-                RPAD(r.valor_maximo::text, 16),
+                RPAD(r.valor_maximo::text, 12),
                 RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
 
-    RAISE INFO '------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
 
 EXCEPTION
     WHEN OTHERS THEN
