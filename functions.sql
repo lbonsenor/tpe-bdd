@@ -63,7 +63,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$ DECLARE available_dorsal INT;
 
 BEGIN BEGIN 
-    
+    IF NEW.valor <= 0 OR NEW.altura <= 0 OR NEW.edad <= 0
+    THEN 
+    RETURN NULL;
+    END IF;
 CASE
     WHEN NEW.posicion ILIKE 'Portero' THEN available_dorsal := 1;
 
