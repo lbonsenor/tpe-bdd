@@ -62,7 +62,9 @@ $$ LANGUAGE plpgsql;
 -- Función a ejecutar en inserción en jugador
 CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$ DECLARE available_dorsal INT;
 
-BEGIN BEGIN CASE
+BEGIN BEGIN 
+    
+CASE
     WHEN NEW.posicion ILIKE 'Portero' THEN available_dorsal := 1;
 
     WHEN NEW.posicion ILIKE 'Defensa'
@@ -250,7 +252,7 @@ BEGIN
             ROUND(AVG(altura), 2) AS prom_altura,
             ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
-        WHERE fichado > dia
+        WHERE fichado >= dia
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
         ORDER BY pie, mes_fichaje
     LOOP
@@ -285,7 +287,7 @@ BEGIN
             ROUND(AVG(altura), 2) AS prom_altura,
             ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
-        WHERE fichado > dia
+        WHERE fichado >= dia
         GROUP BY equipo
         ORDER BY valor_maximo DESC
     LOOP
