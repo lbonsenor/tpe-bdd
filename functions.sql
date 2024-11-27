@@ -344,6 +344,8 @@ BEGIN
         END IF;
     END LOOP;
 
+    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+
 EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Error al generar el reporte: %', SQLERRM;
