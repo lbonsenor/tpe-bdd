@@ -247,7 +247,7 @@ BEGIN
     RAISE INFO '--------------------------------------------------------------------------------------------------------------';
     RAISE INFO '--------------------------------------ANALISIS DE JUGADORES Y EQUIPOS-----------------------------------------';
     RAISE INFO '--------------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable------------------------Fecha----------Qty--------Prom_Edad------Prom_Alt------Valor-----------------#';
+    RAISE INFO 'Variable------------------------Fecha-----------Qty-------Prom_Edad------Prom_Alt------Valor-----------------#';
     RAISE INFO '--------------------------------------------------------------------------------------------------------------';
 
     -- Reporte de pie preferido
@@ -272,8 +272,8 @@ BEGIN
             RAISE INFO 'Pie: %    %    %    %    %    %    %',
                 RPAD(r.pie::text, 23),
                 RPAD(r.mes_fichaje::text, 11),
-                LPAD(r.qty::text, 2),
-                LPAD(r.prom_edad::text, 10),
+                LPAD(r.qty::text, 3),
+                LPAD(r.prom_edad::text, 9),
                 LPAD(r.prom_altura::text, 10),
                 LPAD(r.valor_maximo::text, 16),
                 LPAD(linea::text, 9);
