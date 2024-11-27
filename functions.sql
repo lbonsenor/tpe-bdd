@@ -65,35 +65,32 @@ CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$
 BEGIN BEGIN CASE
     WHEN NEW.posicion ILIKE 'Portero' THEN available_dorsal := 1;
 
-WHEN NEW.posicion ILIKE 'Defensa'
-OR NEW.posicion ILIKE 'Defensa central' THEN available_dorsal := 2;
+    WHEN NEW.posicion ILIKE 'Defensa'
+    OR NEW.posicion ILIKE 'Defensa central' THEN available_dorsal := 2;
 
-WHEN NEW.posicion ILIKE 'Lateral izquierdo' THEN available_dorsal := 3;
+    WHEN NEW.posicion ILIKE 'Lateral izquierdo' THEN available_dorsal := 3;
 
-WHEN NEW.posicion ILIKE 'Lateral derecho' THEN available_dorsal := 4;
+    WHEN NEW.posicion ILIKE 'Lateral derecho' THEN available_dorsal := 4;
 
-WHEN NEW.posicion ILIKE 'Pivote' THEN available_dorsal := 5;
+    WHEN NEW.posicion ILIKE 'Pivote' THEN available_dorsal := 5;
 
-WHEN NEW.posicion ILIKE 'Mediocentro'
-OR NEW.posicion ILIKE 'Centrocampista'
-OR NEW.posicion ILIKE 'Interior derecho'
-OR NEW.posicion ILIKE 'Interior izquierdo' THEN available_dorsal := 8;
+    WHEN NEW.posicion ILIKE 'Mediocentro'
+    OR NEW.posicion ILIKE 'Centrocampista'
+    OR NEW.posicion ILIKE 'Interior derecho'
+    OR NEW.posicion ILIKE 'Interior izquierdo' THEN available_dorsal := 8;
 
-WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
-OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
+    WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
+    OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
 
-WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 7;
+    WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 7;
 
-WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 11;
+    WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 11;
 
-WHEN NEW.posicion ILIKE 'Delantero'
-OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
+    WHEN NEW.posicion ILIKE 'Delantero'
+    OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
 
-ELSE RAISE NOTICE 'Posicion % desconocida',
-NEW.posicion;
-
-RETURN NULL;
-
+    ELSE RAISE NOTICE 'Posicion % desconocida', NEW.posicion;
+    RETURN NULL;
 END CASE
 ;
 
@@ -237,11 +234,11 @@ BEGIN
     END IF;
 
     -- Headers
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
-    RAISE INFO '--------------------------------------ANALISIS DE JUGADORES Y EQUIPOS-----------------------------------------';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
-    RAISE INFO 'Variable------------------------Fecha-----------Qty-------Prom_Edad------Prom_Alt------Valor-----------------#';
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO '-----------------------------------ANALISIS DE JUGADORES Y EQUIPOS--------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO 'Variable------------------------Fecha----------Qty-------Prom_Edad------Prom_Alt------Valor-----------#-';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
 
     -- Reporte de pie preferido
     FOR r IN
@@ -249,9 +246,9 @@ BEGIN
             pie,
             TO_CHAR(fichado, 'YYYY-MM') AS mes_fichaje,
             COUNT(*) AS qty,
-            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(edad), 1) AS prom_edad,
             ROUND(AVG(altura), 2) AS prom_altura,
-            ROUND(MAX(valor), 2) AS valor_maximo
+            ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
         WHERE fichado > dia
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
@@ -265,11 +262,11 @@ BEGIN
             RAISE INFO 'Pie: %    %    %    %    %    %    %',
                 RPAD(r.pie::text, 23),
                 RPAD(r.mes_fichaje::text, 11),
-                LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 9),
-                LPAD(r.prom_altura::text, 10),
-                LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 9);
+                RPAD(r.qty::text, 6),
+                RPAD(r.prom_edad::text, 11),
+                RPAD(r.prom_altura::text, 10),
+                RPAD(r.valor_maximo::text, 12),
+                RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
@@ -277,16 +274,16 @@ BEGIN
     -- Reporte de equipos
     linea := 1;
     
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';   
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';   
 
     FOR r IN
         SELECT
             equipo,
             MIN(fichado) AS fecha_minima_fichaje,
             COUNT(*) AS qty,
-            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(edad), 1) AS prom_edad,
             ROUND(AVG(altura), 2) AS prom_altura,
-            ROUND(MAX(valor), 2) AS valor_maximo
+            ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
         WHERE fichado > dia
         GROUP BY equipo
@@ -296,11 +293,11 @@ BEGIN
             RAISE INFO '%    %    %    %    %    %    %',
                 RPAD(r.equipo::text, 28),
                 RPAD(r.fecha_minima_fichaje::text, 11),
-                LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 9),
-                LPAD(r.prom_altura::text, 10),
-                LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 9);
+                RPAD(r.qty::text, 6),
+                RPAD(r.prom_edad::text, 11),
+                RPAD(r.prom_altura::text, 10),
+                RPAD(r.valor_maximo::text, 12),
+                RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
@@ -308,16 +305,16 @@ BEGIN
     -- Reporte de dorsales
     linea := 1;
 
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
     
     FOR r IN
         SELECT
             dp.dorsal,
             MIN(fichado) AS fecha_minima_fichaje,
             COUNT(*) AS qty,
-            ROUND(AVG(edad), 2) AS prom_edad,
+            ROUND(AVG(edad), 1) AS prom_edad,
             ROUND(AVG(altura), 2) AS prom_altura,
-            ROUND(MAX(valor), 2) AS valor_maximo
+            ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista f
         JOIN dorsal dp ON f.nombre = dp.jugador
         WHERE f.fichado > dia
@@ -328,16 +325,16 @@ BEGIN
             RAISE INFO 'Dorsal: %    %    %    %    %    %    %',
                 RPAD(r.dorsal::text, 20),
                 RPAD(r.fecha_minima_fichaje::text, 11),
-                LPAD(r.qty::text, 3),
-                LPAD(r.prom_edad::text, 9),
-                LPAD(r.prom_altura::text, 10),
-                LPAD(r.valor_maximo::text, 16),
-                LPAD(linea::text, 9);
+                RPAD(r.qty::text, 6),
+                RPAD(r.prom_edad::text, 11),
+                RPAD(r.prom_altura::text, 10),
+                RPAD(r.valor_maximo::text, 12),
+                RPAD(linea::text, 9);
             linea := linea + 1;
         END IF;
     END LOOP;
 
-    RAISE INFO '--------------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
 
 EXCEPTION
     WHEN OTHERS THEN
