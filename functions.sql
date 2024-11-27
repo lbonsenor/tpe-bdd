@@ -65,35 +65,32 @@ CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$
 BEGIN BEGIN CASE
     WHEN NEW.posicion ILIKE 'Portero' THEN available_dorsal := 1;
 
-WHEN NEW.posicion ILIKE 'Defensa'
-OR NEW.posicion ILIKE 'Defensa central' THEN available_dorsal := 2;
+    WHEN NEW.posicion ILIKE 'Defensa'
+    OR NEW.posicion ILIKE 'Defensa central' THEN available_dorsal := 2;
 
-WHEN NEW.posicion ILIKE 'Lateral izquierdo' THEN available_dorsal := 3;
+    WHEN NEW.posicion ILIKE 'Lateral izquierdo' THEN available_dorsal := 3;
 
-WHEN NEW.posicion ILIKE 'Lateral derecho' THEN available_dorsal := 4;
+    WHEN NEW.posicion ILIKE 'Lateral derecho' THEN available_dorsal := 4;
 
-WHEN NEW.posicion ILIKE 'Pivote' THEN available_dorsal := 5;
+    WHEN NEW.posicion ILIKE 'Pivote' THEN available_dorsal := 5;
 
-WHEN NEW.posicion ILIKE 'Mediocentro'
-OR NEW.posicion ILIKE 'Centrocampista'
-OR NEW.posicion ILIKE 'Interior derecho'
-OR NEW.posicion ILIKE 'Interior izquierdo' THEN available_dorsal := 8;
+    WHEN NEW.posicion ILIKE 'Mediocentro'
+    OR NEW.posicion ILIKE 'Centrocampista'
+    OR NEW.posicion ILIKE 'Interior derecho'
+    OR NEW.posicion ILIKE 'Interior izquierdo' THEN available_dorsal := 8;
 
-WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
-OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
+    WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
+    OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
 
-WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 7;
+    WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 7;
 
-WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 11;
+    WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 11;
 
-WHEN NEW.posicion ILIKE 'Delantero'
-OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
+    WHEN NEW.posicion ILIKE 'Delantero'
+    OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
 
-ELSE RAISE NOTICE 'Posicion % desconocida',
-NEW.posicion;
-
-RETURN NULL;
-
+    ELSE RAISE NOTICE 'Posicion % desconocida', NEW.posicion;
+    RETURN NULL;
 END CASE
 ;
 
