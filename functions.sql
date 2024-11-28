@@ -16,7 +16,7 @@ CREATE TABLE futbolista (
     equipo_anterior VARCHAR(50),
     valor NUMERIC(10, 2), -- Money no es tan preciso, y tampoco es muy probable que tengan un valor de un billón de dólares
     equipo VARCHAR(50) NOT NULL,
-    PRIMARY KEY(nombre, equipo, posicion) -- Asumo que no se repiten los nombres dentro del mismo equipo
+    PRIMARY KEY(nombre) -- Asumo que no se repiten los nombres dentro del mismo equipo
 );
 
 -- Creación de tabla dorsal
@@ -62,7 +62,12 @@ $$ LANGUAGE plpgsql;
 -- Función a ejecutar en inserción en jugador
 CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$ DECLARE available_dorsal INT;
 
-BEGIN BEGIN CASE
+BEGIN BEGIN 
+    IF NEW.valor <= 0 OR NEW.altura <= 0 OR NEW.edad <= 0 /* mas eficiente en create table */
+    THEN 
+    RETURN NULL;
+    END IF;
+CASE
     WHEN NEW.posicion ILIKE 'Portero' THEN available_dorsal := 1;
 
     WHEN NEW.posicion ILIKE 'Defensa'
@@ -82,9 +87,7 @@ BEGIN BEGIN CASE
     WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
     OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
 
-    WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 7;
-
-    WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 11;
+    WHEN NEW.posicion ILIKE 'Extremo derecho' or NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 7; /* cambio en clase */
 
     WHEN NEW.posicion ILIKE 'Delantero'
     OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
@@ -110,7 +113,8 @@ IF EXISTS (
 
 -- Alternativa según posición
 CASE
-    WHEN NEW.posicion ILIKE 'Portero' THEN IF NOT EXISTS (
+    WHEN available_dorsal = 1 THEN 
+    IF EXISTS (
         SELECT
             1
         FROM
@@ -120,16 +124,14 @@ CASE
             dp.dorsal = 12
             AND fp.equipo = NEW.equipo
             AND fp.nombre != NEW.nombre
-    ) THEN available_dorsal := 12;
+    ) THEN 
+    PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+    RETURN NEW;
+    ELSE
+        available_dorsal := 12;
+    END IF;
 
-PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
-
-RETURN NEW;
-
-END IF;
-
-WHEN NEW.posicion ILIKE 'Defensa'
-OR NEW.posicion ILIKE 'Defensa central' THEN IF NOT EXISTS (
+    WHEN available_dorsal = 2 THEN IF EXISTS (
     SELECT
         1
     FROM
@@ -139,15 +141,14 @@ OR NEW.posicion ILIKE 'Defensa central' THEN IF NOT EXISTS (
         dp.dorsal = 6
         AND fp.equipo = NEW.equipo
         AND fp.nombre != NEW.nombre
-) THEN available_dorsal := 6;
+    ) THEN 
+        PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+        RETURN NEW;
+    ELSE 
+        available_dorsal := 6;
+    END IF;
 
-PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
-
-RETURN NEW;
-
-END IF;
-
-WHEN NEW.posicion ILIKE 'Extremo derecho' THEN IF NOT EXISTS (
+    WHEN available_dorsal = 7 THEN IF EXISTS (
     SELECT
         1
     FROM
@@ -157,15 +158,14 @@ WHEN NEW.posicion ILIKE 'Extremo derecho' THEN IF NOT EXISTS (
         dp.dorsal = 11
         AND fp.equipo = NEW.equipo
         AND fp.nombre != NEW.nombre
-) THEN available_dorsal := 11;
+    ) THEN 
+        PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+        RETURN NEW;
+    ELSE 
+        available_dorsal := 11;
+        END IF;
 
-PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
-
-RETURN NEW;
-
-END IF;
-
-WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN IF NOT EXISTS (
+/*     WHEN available_dorsal = 11 THEN IF EXISTS (
     SELECT
         1
     FROM
@@ -175,21 +175,17 @@ WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN IF NOT EXISTS (
         dp.dorsal = 7
         AND fp.equipo = NEW.equipo
         AND fp.nombre != NEW.nombre
-) THEN available_dorsal := 7;
-
-PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
-
-RETURN NEW;
-
-END IF;
+    ) THEN 
+    PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
+    RETURN NEW;
+    ELSE
+        available_dorsal := 7;
+        END IF; */
 
 ELSE -- Default: no hay alternativas
 PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
-
 RETURN NEW;
-
 END CASE;
-
 END IF;
 
 INSERT INTO
@@ -244,6 +240,7 @@ BEGIN
     RAISE INFO '--------------------------------------------------------------------------------------------------------';
     RAISE INFO '-----------------------------------ANALISIS DE JUGADORES Y EQUIPOS--------------------------------------';
     RAISE INFO '--------------------------------------------------------------------------------------------------------';
+    RAISE INFO '--------------------------------------------------------------------------------------------------------';
     RAISE INFO 'Variable------------------------Fecha----------Qty-------Prom_Edad------Prom_Alt------Valor-----------#-';
     RAISE INFO '--------------------------------------------------------------------------------------------------------';
 
@@ -257,7 +254,7 @@ BEGIN
             ROUND(AVG(altura), 2) AS prom_altura,
             ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
-        WHERE fichado > dia
+        WHERE fichado >= dia AND pie IS NOT NULL AND valor IS NOT NULL
         GROUP BY pie, TO_CHAR(fichado, 'YYYY-MM')
         ORDER BY pie, mes_fichaje
     LOOP
@@ -292,7 +289,7 @@ BEGIN
             ROUND(AVG(altura), 2) AS prom_altura,
             ROUND(MAX(valor)) AS valor_maximo
         FROM futbolista
-        WHERE fichado > dia
+        WHERE fichado >= dia AND valor IS NOT NULL
         GROUP BY equipo
         ORDER BY valor_maximo DESC
     LOOP
