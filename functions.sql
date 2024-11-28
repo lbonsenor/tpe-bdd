@@ -63,7 +63,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION player_validations_and_number() RETURNS TRIGGER AS $$ DECLARE available_dorsal INT;
 
 BEGIN BEGIN 
-    IF NEW.valor <= 0 OR NEW.altura <= 0 OR NEW.edad <= 0
+    IF NEW.valor <= 0 OR NEW.altura <= 0 OR NEW.edad <= 0 /* mas eficiente en create table */
     THEN 
     RETURN NULL;
     END IF;
@@ -87,9 +87,7 @@ CASE
     WHEN NEW.posicion ILIKE 'Mediocentro ofensivo'
     OR NEW.posicion ILIKE 'Mediapunta' THEN available_dorsal := 10;
 
-    WHEN NEW.posicion ILIKE 'Extremo derecho' THEN available_dorsal := 11;
-
-    WHEN NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 7;
+    WHEN NEW.posicion ILIKE 'Extremo derecho' or NEW.posicion ILIKE 'Extremo izquierdo' THEN available_dorsal := 7; /* cambio en clase */
 
     WHEN NEW.posicion ILIKE 'Delantero'
     OR NEW.posicion ILIKE 'Delantero centro' THEN available_dorsal := 9;
@@ -167,7 +165,7 @@ CASE
         available_dorsal := 11;
         END IF;
 
-    WHEN available_dorsal = 11 THEN IF EXISTS (
+/*     WHEN available_dorsal = 11 THEN IF EXISTS (
     SELECT
         1
     FROM
@@ -182,7 +180,7 @@ CASE
     RETURN NEW;
     ELSE
         available_dorsal := 7;
-        END IF;
+        END IF; */
 
 ELSE -- Default: no hay alternativas
 PERFORM assign_next_available_dorsal(NEW.equipo, NEW.nombre);
